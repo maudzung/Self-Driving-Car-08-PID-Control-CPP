@@ -2,7 +2,7 @@
 #define PID_H
 
 class PID {
- public:
+public:
   /**
    * Constructor
    */
@@ -31,7 +31,7 @@ class PID {
    */
   double TotalError();
 
- private:
+private:
   /**
    * PID Errors
    */

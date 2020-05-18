@@ -40,7 +40,7 @@ int main() {
   pid.Init(0.0150, 0.0025, 2.7500);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
-                     uWS::OpCode opCode) {
+   uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -64,14 +64,14 @@ int main() {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
-           pid.UpdateError(cte);
+          pid.UpdateError(cte);
 
            // Use errors to compute the full error
-           steer_value = -pid.TotalError();
+          steer_value = -pid.TotalError();
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
-                    << std::endl;
+          << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
@@ -93,7 +93,7 @@ int main() {
   });
 
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, 
-                         char *message, size_t length) {
+   char *message, size_t length) {
     ws.close();
     std::cout << "Disconnected" << std::endl;
   });
