@@ -9,6 +9,18 @@
 using nlohmann::json;
 using std::string;
 
+// Global variables
+// Flag for using twiddle
+bool use_twiddle = true;
+unsigned int timesteps = 0;
+double err = 0.;
+std::vector<double> params = {0.2, 0.004, 3.0};
+double best_err = 100000;
+
+
+std::vector<double> dps = {0.1, 0.1, 0.5};
+int twiddle_pid_index = 0;
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
@@ -30,6 +42,13 @@ string hasData(string s) {
   return "";
 }
 
+void resetSimulator(uWS::WebSocket<uWS::SERVER>& ws)
+{
+  std::string reset_msg = "42[\"reset\",{}]";
+ws.send(reset_msg.data(), reset_msg.length(), uWS::OpCode::TEXT);
+}
+
+
 int main() {
   uWS::Hub h;
 
@@ -37,13 +56,14 @@ int main() {
   /**
    * Initialize the pid variable.
    */
-  pid.Init(0.0150, 0.0025, 2.7500);
+  pid.Init(params[0], params[1], params[2]);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
    uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
+
     if (length && length > 2 && data[0] == '4' && data[1] == '2') {
       auto s = hasData(string(data).substr(0, length));
 
@@ -70,14 +90,29 @@ int main() {
           steer_value = -pid.TotalError();
           
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
-          << std::endl;
+          // std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+
+          if (use_twiddle) {
+            if (timesteps > 500) {
+              pid.RunTwiddle(err, params, dps, best_err, twiddle_pid_index);
+              // Update pid
+              pid.Init(params[0], params[1], params[2]);
+              resetSimulator(ws);
+              timesteps = 0;
+              err = 0.;
+              return;
+            }
+            else {
+              err += pow(cte, 2);
+            }
+            timesteps++;
+          }
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {

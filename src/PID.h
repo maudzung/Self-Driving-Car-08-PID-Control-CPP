@@ -4,6 +4,15 @@
 class PID {
 public:
   /**
+   * PID Coefficients
+   */ 
+  double Kp;
+  double Ki;
+  double Kd;
+  enum TwiddleState { INIT, INCREASED, DECREASED };
+  TwiddleState twiddle_state = INIT;
+
+  /**
    * Constructor
    */
   PID();
@@ -31,6 +40,9 @@ public:
    */
   double TotalError();
 
+  void RunTwiddle(double err, std::vector<double>& params, std::vector<double>& dps, double& best_err, 
+  int& twiddle_pid_index);
+
 private:
   /**
    * PID Errors
@@ -39,12 +51,6 @@ private:
   double i_error;
   double d_error;
 
-  /**
-   * PID Coefficients
-   */ 
-  double Kp;
-  double Ki;
-  double Kd;
 };
 
 #endif  // PID_H
