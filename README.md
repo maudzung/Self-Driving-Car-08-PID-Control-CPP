@@ -7,7 +7,9 @@ keep a car in the center of the lane track during driving.
 
 ---
 ## Demostration
-![]()
+![demo](./demo.gif)
+
+The full demostration is at [https://youtu.be/jeNe3Oa1ZVo](https://youtu.be/jeNe3Oa1ZVo)
 
 ## Terminologies
 - **Cross Track Error (CTE)**: The distance from the car to the trajectory
@@ -17,13 +19,13 @@ keep a car in the center of the lane track during driving.
     steer_angle = - tau_p * cte
     ```
 - **D** component: The differential component of the controller which helps to take temporal derivative of error. 
-When the car turned enough to reduce the error, it will help not to overshoot through the x axis
+When the car turned enough to reduce the error, it will help not to overshoot the road.
     ```
     diff_cte = cte - prev_cte
     prev_cte = cte
     steer_angle += - tau_d * diff_cte
     ```
-- **I** component: The sum of cte overtime to deal with systematic biases.
+- **I** component: The sum of cte overtime to minimize the average CTE.
     ```
     sum_cte += cte
     steer_angle += tau_i * sum_cte
@@ -37,12 +39,21 @@ When the car turned enough to reduce the error, it will help not to overshoot th
     steer = -tau_p * cte - tau_d * diff_cte - tau_i * sum_cte
     ```
 
-
 ## PID Fine-Tune
-### 1. Finding initial values of Kp, Ki, Kd 
+### 1. Manually fine-tune parameters for Kp, Ki, Kd 
+- **Step 1**: I set parameters to zeros. Obviously, the car drives straight. 
+- **Step 2**: I increased the Kp of the P component with an increment of 0.01 until the car start going on following the road 
+and drives with constant oscillations.
+- **Step 3**: I increased the Kd of the D component with an increment of 0.1 to try to reduce oscillations. <br>
+ *Loop the 2nd step and the 3rd step.*
+- **Step 4**: When the car drives the track with really small oscillations and without going out of the road, 
+I increased the Ki of the I component to minimize the average CTE.
+
+Finally, I ended up with the parameters: ```Kp = 0.15, Ki = 0.0001, Kd = 1.0```
 
 ### 2. Applying **Twiddle** algorithm to optimize the parameters
-
+I also implemented the Twiddle algorithm to optimize the parameters. 
+I'll update the results of the algorithm later.
 
 ## Code Style
 
@@ -89,3 +100,6 @@ cmake ..
 make
 ./pid
 ```
+
+## References
+1. [PID controller](https://www.wikiwand.com/en/PID_controller#/overview)
