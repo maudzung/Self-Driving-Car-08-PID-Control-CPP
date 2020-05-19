@@ -11,14 +11,14 @@ using std::string;
 
 // Global variables
 // Flag for using twiddle
-bool use_twiddle = true;
+bool use_twiddle = false;
 unsigned int timesteps = 0;
 double err = 0.;
-std::vector<double> params = {0.2, 0.004, 3.0};
+std::vector<double> params = {0.15, 0.0001, 1.0};
 double best_err = 100000;
 
 
-std::vector<double> dps = {0.1, 0.1, 0.5};
+std::vector<double> dps = {1.0, 1.0, 1.0};
 int twiddle_pid_index = 0;
 
 // For converting back and forth between radians and degrees.
