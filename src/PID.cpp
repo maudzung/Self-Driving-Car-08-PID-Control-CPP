@@ -47,30 +47,25 @@ void PID::RunTwiddle(double err, std::vector<double>& params, std::vector<double
         best_err = err;
         params[twiddle_pid_index] += dps[twiddle_pid_index];
         twiddle_state = INCREASED;
-        std::cout << "INCREASED: increase params: " << twiddle_pid_index << std::endl;
         break;
       }
       case INCREASED: {
         if (err < best_err) {
           best_err = err;
           dps[twiddle_pid_index] *= 1.1;
-          std::cout << "INCREASED: best, increase 1.1 dps: " << twiddle_pid_index << std::endl;
 
           // Consider next params
           do {
             twiddle_pid_index = (twiddle_pid_index + 1) % params.size();
           } while (dps[twiddle_pid_index] == 0);
 
-          std::cout << "INCREASED: next twiddle_pid_index: " << twiddle_pid_index << std::endl;
 
           params[twiddle_pid_index] += dps[twiddle_pid_index];
 
-          std::cout << "INCREASED: increase params: " << twiddle_pid_index << std::endl;
         }
         else {
           params[twiddle_pid_index] -= 2 * dps[twiddle_pid_index];
           twiddle_state = DECREASED;
-          std::cout << "INCREASED: decrease params: " << twiddle_pid_index << std::endl;
         }
 
         break;
@@ -79,12 +74,10 @@ void PID::RunTwiddle(double err, std::vector<double>& params, std::vector<double
         if (err < best_err) {
           best_err = err;
           dps[twiddle_pid_index] *= 1.1;
-          std::cout << "DECREASED: best, increase 1.1 dps: " << twiddle_pid_index << std::endl;
         } 
         else {
           params[twiddle_pid_index] += dps[twiddle_pid_index];
           dps[twiddle_pid_index] *= 0.9;
-          std::cout << "DECREASED: increase params, decrease 0.9 dps: " << twiddle_pid_index << std::endl;
         }
         twiddle_state = INCREASED;
 
@@ -92,10 +85,8 @@ void PID::RunTwiddle(double err, std::vector<double>& params, std::vector<double
         do {
           twiddle_pid_index = (twiddle_pid_index + 1) % params.size();
         } while (dps[twiddle_pid_index] == 0);
-        std::cout << "DECREASED: next twiddle_pid_index: " << twiddle_pid_index << std::endl;
 
         params[twiddle_pid_index] += dps[twiddle_pid_index];
-        std::cout << "DECREASED: increase params: " << twiddle_pid_index << std::endl;
 
         break;
       }
